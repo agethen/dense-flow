@@ -1,8 +1,11 @@
 #include "denseFlow_gpu.hh"
 #include "toolbox.hh"
 
-// Array of Step-Values to compute
-const std::vector< unsigned int > steppings { 50 };
+// Compute optical flow between frames t and t+steppings[*]
+const std::vector< unsigned int > steppings { 1 };
+
+// If SERIALIZE_BUFFER, group chunk_size images per file
+const int chunk_size = 10000;
 
 cv::Ptr<cv::cuda::FarnebackOpticalFlow> alg_farn;
 cv::Ptr<cv::cuda::OpticalFlowDual_TVL1> alg_tvl1;
@@ -45,15 +48,21 @@ int main(int argc, char** argv){
 		return -1;
 	}
 
-	int frame_num = 0;
-	
 	cv::cuda::setDevice(device_id);
 
 	alg_farn = cv::cuda::FarnebackOpticalFlow::create();
 	alg_tvl1 = cv::cuda::OpticalFlowDual_TVL1::create();
 	alg_brox = cv::cuda::BroxOpticalFlow::create(0.197f, 50.0f, 0.8f, 10, 77, 10);
 
+
+	int frame_num = 0;
+	int chunk_num = 0;
+	
+	// We need to keep a backlog of images as we compute flow from t to t+steppings[*]
 	std::vector< cv::Mat > frames_buffer;
+
+	// Instead of saving the optical flow as single jpegs, we serialize them into a single file
+	std::vector< std::string > output_buffer_image;
 	std::vector< std::string > output_buffer_x;
 	std::vector< std::string > output_buffer_y;
 
@@ -64,11 +73,11 @@ int main(int argc, char** argv){
 		if(frame.empty())
 			break;
 		
+		cv::Mat grey;
+		cv::cvtColor( frame, grey, CV_BGR2GRAY);
+		frames_buffer.push_back( grey );
+				
 		if(frame_num == 0) {
-			cv::Mat tmp;
-			cv::cvtColor( frame, tmp, CV_BGR2GRAY);
-			frames_buffer.push_back( tmp );
-
 			frame_num++;
 
 			int step_t = step;
@@ -79,37 +88,35 @@ int main(int argc, char** argv){
 			continue;
 		}
 
-		cv::Mat grey;
-		cv::cvtColor( frame, grey, CV_BGR2GRAY);
-
-		// Put image into a queue for long term computation
-		frames_buffer.push_back( grey );
-		
-		while( frames_buffer.size() > BUFFER_SIZE ){
+		while( frames_buffer.size() > BUFFER_SIZE )
 			frames_buffer.erase( frames_buffer.begin() );
-		}
 
-		std::vector< cv::Mat > output;
+		std::vector< cv::Mat > tmp_output;
 
 		for( auto d : steppings ){
 			if( frames_buffer.size() > d )
-				compute_flow( *(frames_buffer.rbegin()+d), *(frames_buffer.rbegin()), output, type );
+				compute_flow( *(frames_buffer.rbegin()+d), *(frames_buffer.rbegin()), tmp_output, type );
 			else
-				compute_flow( frames_buffer.front(), frames_buffer.back(), output, type );
+				compute_flow( frames_buffer.front(), frames_buffer.back(), tmp_output, type );
 		}
 
-		// Output optical flow
-		#ifdef SAVE_IMAGE
+
+		// Save image
 		cv::Mat image;
 		cv::resize( frame, image, cv::Size( DIM_X, DIM_Y ) );
+
+		#ifndef SERIALIZE_BUFFER
 		cv::imwrite( imgFile + "_" + boost::lexical_cast<std::string>( frame_num ) + ".jpg", image );
+		#else
+		output_buffer_image.push_back( toolbox::encode( image ) );
 		#endif
 
+		// Scale & Save flow
 		for( unsigned int i = 0; i < steppings.size(); i++ ){
-			cv::Mat imgX( output[2*i].size(), CV_8UC1 );
-			cv::Mat imgY( output[2*i+1].size(), CV_8UC1 );
+			cv::Mat imgX( tmp_output[2*i].size(), CV_8UC1 );
+			cv::Mat imgY( tmp_output[2*i+1].size(), CV_8UC1 );
 
-			toolbox::convertFlowToImage( output[2*i], output[2*i+1], imgX, imgY, -bound, bound );
+			toolbox::convertFlowToImage( tmp_output[2*i], tmp_output[2*i+1], imgX, imgY, -bound, bound );
 			
 			std::string tmp = "_t" + boost::lexical_cast<std::string>( steppings[i] )
 											 + "_" + boost::lexical_cast<std::string>( frame_num ) + ".jpg";
@@ -123,21 +130,32 @@ int main(int argc, char** argv){
 			#endif
 		}
 
-		frame_num = frame_num + 1;
+		frame_num++;
 
 		int step_t = step;
 		while (step_t > 1){
 			*capture >> frame;
 			step_t--;
 		}
-		if (frame_num%50 == 0)
+
+		#ifdef SERIALIZE_BUFFER
+		if( frame_num % chunk_size == 0 ){
+			toolbox::serialize( output_buffer_x, xFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
+			toolbox::serialize( output_buffer_y, yFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
+			toolbox::serialize( output_buffer_image, imgFile + "_chk" + boost::lexical_cast<std::string>( chunk_num++ ) + ".image" );
+		}
+		#endif
+
+		if( frame_num % 50 == 0 )
 			std::cout << "-- " << frame_num << " " << std::flush;
 	}
 
 	#ifdef SERIALIZE_BUFFER
-	toolbox::serialize( output_buffer_x, xFlowFile + ".flow" );
-	toolbox::serialize( output_buffer_y, yFlowFile + ".flow" );
+	toolbox::serialize( output_buffer_x, xFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
+	toolbox::serialize( output_buffer_y, yFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
+	toolbox::serialize( output_buffer_image, imgFile + "_chk" + boost::lexical_cast<std::string>( chunk_num++ ) + ".image" );
 	#endif
+
 	std::cout << ".. Finished" << std::endl;
 	return 0;
 }
