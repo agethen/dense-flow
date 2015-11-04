@@ -73,7 +73,8 @@ namespace toolbox {
 		}
 		#undef CAST
 		#else
-			double factor = 256.0/higherBound;
+			// We ignore lowerBound and assume it is lowerBound = -higherBound
+			double factor = 256.0/(2.0*higherBound);
 			flow_x.convertTo( img_x, CV_8UC1, factor, 128 );	// For simplicity, we assume a range of [-8, 8]. There are (rarely) higher/lower values
 			flow_y.convertTo( img_y, CV_8UC1, factor, 128 );
 		#endif
