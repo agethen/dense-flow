@@ -68,6 +68,15 @@ int main(int argc, char** argv){
 
 	while(true) {
 		cv::Mat frame;
+
+		if( frame_num > 0 ){
+			int step_t = step;
+			while (step_t > 1){
+				*capture >> frame;
+				step_t--;
+			}
+		}
+
 		*capture >> frame;
 
 		if(frame.empty())
@@ -76,15 +85,9 @@ int main(int argc, char** argv){
 		cv::Mat grey;
 		cv::cvtColor( frame, grey, CV_BGR2GRAY);
 		frames_buffer.push_back( grey );
-				
+		
 		if(frame_num == 0) {
 			frame_num++;
-
-			int step_t = step;
-			while (step_t > 1){
-				*capture >> frame;
-				step_t--;
-			}
 			continue;
 		}
 
@@ -131,12 +134,6 @@ int main(int argc, char** argv){
 		}
 
 		frame_num++;
-
-		int step_t = step;
-		while (step_t > 1){
-			*capture >> frame;
-			step_t--;
-		}
 
 		#ifdef SERIALIZE_BUFFER
 		if( output_buffer_x.size() >= chunk_size ){
