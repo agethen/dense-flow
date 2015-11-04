@@ -21,7 +21,7 @@
 #include <iostream>
 
 // Keep how many frames loaded at the same time to compute flow (should be larger than stepping)
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 10
 
 // New Image Dimensions
 #define DIM_X 340

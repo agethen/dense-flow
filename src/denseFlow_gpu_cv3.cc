@@ -143,6 +143,10 @@ int main(int argc, char** argv){
 			toolbox::serialize( output_buffer_x, xFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
 			toolbox::serialize( output_buffer_y, yFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
 			toolbox::serialize( output_buffer_image, imgFile + "_chk" + boost::lexical_cast<std::string>( chunk_num++ ) + ".image" );
+
+			output_buffer_x.clear();
+			output_buffer_y.clear();
+			output_buffer_image.clear();
 		}
 		#endif
 
@@ -151,9 +155,11 @@ int main(int argc, char** argv){
 	}
 
 	#ifdef SERIALIZE_BUFFER
-	toolbox::serialize( output_buffer_x, xFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
-	toolbox::serialize( output_buffer_y, yFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
-	toolbox::serialize( output_buffer_image, imgFile + "_chk" + boost::lexical_cast<std::string>( chunk_num++ ) + ".image" );
+	if( !(output_buffer_x.empty() || output_buffer_y.empty() || output_buffer_image.empty()) ){
+		toolbox::serialize( output_buffer_x, xFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
+		toolbox::serialize( output_buffer_y, yFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
+		toolbox::serialize( output_buffer_image, imgFile + "_chk" + boost::lexical_cast<std::string>( chunk_num++ ) + ".image" );
+	}
 	#endif
 
 	std::cout << ".. Finished" << std::endl;
