@@ -139,7 +139,7 @@ int main(int argc, char** argv){
 		}
 
 		#ifdef SERIALIZE_BUFFER
-		if( frame_num % chunk_size == 0 ){
+		if( output_buffer_x.size() >= chunk_size ){
 			toolbox::serialize( output_buffer_x, xFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
 			toolbox::serialize( output_buffer_y, yFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
 			toolbox::serialize( output_buffer_image, imgFile + "_chk" + boost::lexical_cast<std::string>( chunk_num++ ) + ".image" );
@@ -155,7 +155,7 @@ int main(int argc, char** argv){
 	}
 
 	#ifdef SERIALIZE_BUFFER
-	if( !(output_buffer_x.empty() || output_buffer_y.empty() || output_buffer_image.empty()) ){
+	if( !output_buffer_x.empty() ){
 		toolbox::serialize( output_buffer_x, xFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
 		toolbox::serialize( output_buffer_y, yFlowFile + "_chk" + boost::lexical_cast<std::string>( chunk_num ) + ".flow" );
 		toolbox::serialize( output_buffer_image, imgFile + "_chk" + boost::lexical_cast<std::string>( chunk_num++ ) + ".image" );
