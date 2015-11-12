@@ -15,10 +15,10 @@ class Video{
 				video_ = nullptr;
 			}
 
-		 	std::cout << "Processing file: " << filename << std::endl;
-
 			parse();
 			skip_ = skip;
+		 	
+		 	std::cout << "Processing file: " << filename << " (" << length_frames_ << " frames)" << std::endl;
 		}
 
 		Video( std::string filename ) : Video( filename, 0 ){};

@@ -66,10 +66,13 @@ void process_clip( Video & v, std::string xFlowFile, std::string yFlowFile, int 
 	// Read a clip
 	std::vector<cv::Mat> clip;
 	v.seek( offset );
+	int res = 0;
 	if( len_clip > 0 )
-		int res = v.read( clip, len_clip, false );	// Read a clip of max `len_clip` frames and convert to greyscale
+		res = v.read( clip, len_clip, false );	// Read a clip of max `len_clip` frames and convert to greyscale
 	else
-		int res = v.read( clip, false );
+		res = v.read( clip, false );
+
+	std::cout << "Clip size: " << res << " frames" << std::endl;
 
 	// For each desired span of frames, compute optical flow
 	// This allows faster parsing then running the program several times with different values of step
@@ -82,7 +85,7 @@ void process_clip( Video & v, std::string xFlowFile, std::string yFlowFile, int 
 			toolbox::Serializer archive_y( yFlowFile + (flow_span.size()==1?"":"_span" + boost::lexical_cast<std::string>( span )), ".flow", 5000 );
 		#endif
 
-		std::cout << "\tProcessing span " << span << std::endl << "\t0" << std::flush;
+		std::cout << "\tProcessing span value: " << span << std::endl << "\t0" << std::flush;
 
 		int counter = 0;
 
@@ -105,7 +108,7 @@ void process_clip( Video & v, std::string xFlowFile, std::string yFlowFile, int 
 			#endif
 
 			counter++;
-			if( counter % 50 == 0 )
+			if( counter % 250 == 0 )
 				std::cout << " -- " << counter << std::flush;
 		}
 		std::cout << " -- " << counter << "." << std::endl;
