@@ -81,8 +81,8 @@ void process_clip( Video & v, std::string xFlowFile, std::string yFlowFile, int 
 			continue;
 
 		#ifdef SERIALIZE_BUFFER
-			toolbox::Serializer archive_x( xFlowFile + (flow_span.size()==1?"":"_span" + boost::lexical_cast<std::string>( span )), ".flow", 5000 );
-			toolbox::Serializer archive_y( yFlowFile + (flow_span.size()==1?"":"_span" + boost::lexical_cast<std::string>( span )), ".flow", 5000 );
+			toolbox::Serializer archive_x( xFlowFile + (flow_span.size()==1?"":"_span" + boost::lexical_cast<std::string>( span )), ".flow", 10000 );
+			toolbox::Serializer archive_y( yFlowFile + (flow_span.size()==1?"":"_span" + boost::lexical_cast<std::string>( span )), ".flow", 10000 );
 		#endif
 
 		std::cout << "\tProcessing span value: " << span << std::endl << "\t0" << std::flush;
@@ -108,7 +108,7 @@ void process_clip( Video & v, std::string xFlowFile, std::string yFlowFile, int 
 			#endif
 
 			counter++;
-			if( counter % 250 == 0 )
+			if( counter % 50 == 0 )
 				std::cout << " -- " << counter << std::flush;
 		}
 		std::cout << " -- " << counter << "." << std::endl;

@@ -47,7 +47,7 @@ namespace toolbox{
 			inline void sync(){
 				serialize( data_, prefix_ + "_chk" + boost::lexical_cast<std::string>( chunk_num_ ) + postfix_ );
 				counter_ 		= 0;
-				chunk_num_ 	= 0;
+				chunk_num_++;
 			}
 
 		private:
