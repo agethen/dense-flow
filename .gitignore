@@ -3,6 +3,7 @@
 !readme.md
 !*.cc
 !*.hh
+!build-flow.sh
 !Makefile
 !Makefile.config
 !*/
