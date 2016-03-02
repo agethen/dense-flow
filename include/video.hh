@@ -8,6 +8,12 @@ class Video{
 	public:
 
 		Video( std::string filename, int64_t skip ){
+			if( filename == "" ){
+				std::cerr << "No video file specified." << std::endl;
+				video_ = nullptr;
+				return;
+			}
+
 			video_ = new cv::VideoCapture( filename );
 
 			if( !video_->isOpened() ){
@@ -22,6 +28,10 @@ class Video{
 		}
 
 		Video( std::string filename ) : Video( filename, 0 ){};
+
+		inline bool is_open(){
+			return video_ != nullptr;
+		}
 
 		inline int64_t real_length(){
 			if( !video_ )

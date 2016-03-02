@@ -49,6 +49,9 @@ int main(int argc, char** argv){
 
 	Video v( vidFile, step );
 
+	if( !v.is_open() )
+		return EXIT_FAILURE;
+
 	int length = v.length();
 
 	if( offset > length ){
