@@ -6,7 +6,7 @@ The tool has been rewritten to be compatible with OpenCV 3.0. Make sure you comp
 If you installed OpenCV to a non-default path, please edit Makefile.config and edit the paths correspondingly.
 
 ## Serialization
-In case of long video files, generating thousands of jpegs may be inconvenient for copying. We added the possibility to serialize them into one file. If you want to use this feature, please use 'make serialize'.
+In case of long video files, generating thousands of jpegs may be inconvenient for copying. We added the possibility to serialize them into one file. If you DO NOT want to use this feature, please use 'make simple'.
 
 Serialization requires boost library!
 
@@ -14,7 +14,7 @@ Serialization requires boost library!
 All jpegs are encoded as a string (using OpenCV's imencode). The resulting vector of string is serialized using boost. unpacker.cc provides an example of how to extract the jpegs.
 
 ### Chunks
-After 10000 files, the serialized files are written to disk, and a new chunk is started.
+After 10000 files, the serialized files are written to disk, and a new chunk is started. This can be changed by redefining MAX_FILES_PER_CHUNK.
 
 ## Compilation
 To compile, create 'build' directory, and run 'make'.

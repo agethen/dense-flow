@@ -31,10 +31,14 @@
 // JPEG Quality
 #define JPEG_QUALITY 85
 
+#ifdef SERIALIZE_BUFFER
+    #define MAX_FILES_PER_CHUNK 10000
+#endif
+
 // Don't save frames individually, but rather serialize them to one file
 // Activate this flag via -DSERIALIZE_BUFFER
 // #define SERIALIZE_BUFFER
 
-void process_clip( Video & v, std::string xFlowFile, std::string yFlowFile, int type, int bound, int offset, int len_clip );
-void compute_flow( cv::Mat & prev, cv::Mat & cur, cv::Mat & flow_x, cv::Mat & flow_y, int type, int bound );
+void process_clip( Video & v, std::string imgFile, std::string xFlowFile, std::string yFlowFile, int type, int bound );
+void compute_flow( cv::Mat prev, cv::Mat cur, cv::Mat & flow_x, cv::Mat & flow_y, int type, int bound );
 #endif

@@ -2,12 +2,14 @@
 #define VIDEO_HH
 
 #include <cstdint>
+#include <vector>
+#include <utility>
 #include <denseFlow_gpu.hh>
 
 class Video{
 	public:
 
-		Video( std::string filename, int64_t skip ){
+		Video( std::string filename, int64_t skip, int64_t len ){
 			if( filename == "" ){
 				std::cerr << "No video file specified." << std::endl;
 				video_ = nullptr;
@@ -23,11 +25,12 @@ class Video{
 
 			parse();
 			skip_ = skip;
+			max_length_ = len;
 		 	
 		 	std::cout << "Processing file: " << filename << " (" << length_frames_ << " frames)" << std::endl;
 		}
 
-		Video( std::string filename ) : Video( filename, 0 ){};
+		Video( std::string filename ) : Video( filename, 0, 0 ){};
 
 		inline bool is_open(){
 			return video_ != nullptr;
@@ -49,6 +52,7 @@ class Video{
 
 				count++;
 			}
+			seek( 0 );
 			length_frames_ = count;
 			return count;
 		}
@@ -75,19 +79,23 @@ class Video{
 			return fps_;
 		}
 
-		// Read all frames
-		inline int64_t read( std::vector<cv::Mat> & frames, bool rgb = true ){
+		// Read all frames (until max)
+		inline int64_t read( std::vector< std::pair< int64_t, cv::Mat> > & frames, bool rgb = true ){
 			return read( frames, length_frames_, rgb );
 		}
 
 		// Read at most num frames
-		inline int64_t read( std::vector<cv::Mat> & frames, int64_t num, bool rgb = true ){
+		inline int64_t read( std::vector< std::pair< int64_t, cv::Mat> > & frames, int64_t num, bool rgb = true ){
 			if( !video_ )
 				return 0;
 
 			int64_t num_read = 0;
 
 			for( int64_t i = 0; i < num; i++ ){
+
+				if( max_frame_ > 0 && pos_ >= max_frame_ )
+					return num_read;
+
 				cv::Mat image;
 				*video_ >> image;
 				
@@ -100,9 +108,9 @@ class Video{
 				if( !rgb ){
 					cv::Mat grey;
 					cv::cvtColor( image, grey, CV_BGR2GRAY );
-					frames.push_back( grey );
+					frames.push_back( std::make_pair( pos_, grey ) );
 				}else{
-					frames.push_back( image );
+					frames.push_back( std::make_pair( pos_, image ) );
 				}
 
 				for( int64_t j = 1; j < skip_; j++ ){
@@ -129,6 +137,8 @@ class Video{
 
 		cv::VideoCapture * video_ = nullptr;
 		int64_t length_frames_ = 0;
+		int64_t max_frame_ = 0;
+		int64_t max_length_ = 0;
 		int64_t fps_ = 0;
 		int64_t pos_ = 0;
 		int64_t skip_ = 0;
