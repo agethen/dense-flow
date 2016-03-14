@@ -8,7 +8,7 @@ namespace toolbox{
 	// Originally included functions
 	void drawOptFlowMap(const cv::Mat& flow, cv::Mat& cflowmap, int step, const cv::Scalar& color);
 	void convertFlowToImage(const cv::Mat &flow_x, const cv::Mat &flow_y, cv::Mat &img_x, cv::Mat &img_y,
-	       double lowerBound, double higherBound);
+	       double lowerBound, double higherBound, bool finegrained = false );
 
 	#ifdef SERIALIZE_BUFFER
 	// Encodes cv::Mat as jpeg and converts to string (and reverse)

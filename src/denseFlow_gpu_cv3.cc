@@ -216,5 +216,9 @@ void compute_flow( cv::Mat prev, cv::Mat cur, cv::Mat & flow_x, cv::Mat & flow_y
     cv::resize( tmp_flow[0], imgX, cv::Size( DIM_X, DIM_Y ) );
     cv::resize( tmp_flow[1], imgY, cv::Size( DIM_X, DIM_Y ) );
 
-    toolbox::convertFlowToImage( imgX, imgY, flow_x, flow_y, -bound, bound );
+	#ifdef TEST_FINEGRAINED
+		toolbox::convertFlowToImage( imgX, imgY, flow_x, flow_y, 0, 0, true );
+	#else
+		toolbox::convertFlowToImage( imgX, imgY, flow_x, flow_y, -bound, bound );
+	#endif
 }
