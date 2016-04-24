@@ -14,4 +14,6 @@
 // JPEG Quality
 #define JPEG_QUALITY 85
 
+// Begin a new chunk after this many images
+#define MAX_FILES_PER_CHUNK 20000
 #endif

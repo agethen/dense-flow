@@ -9,7 +9,7 @@ cv::Ptr<cv::cuda::BroxOpticalFlow> alg_brox;
 
 int main(int argc, char** argv){
   bool serialize = false;
-  const int64_t max_files_chunk = 25000;
+  const int64_t max_files_chunk = MAX_FILES_PER_CHUNK;
 
   #ifdef SERIALIZE_BUFFER
   serialize = true;

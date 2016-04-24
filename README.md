@@ -14,7 +14,7 @@ Serialization requires boost library!
 All jpegs are encoded as a string (using OpenCV's imencode). The resulting vector of string is serialized using boost. unpacker.cc provides an example of how to extract the jpegs.
 
 ### Chunks
-After 10000 files, the serialized files are written to disk, and a new chunk is started. This can be changed by redefining MAX_FILES_PER_CHUNK.
+After 20000 files, the serialized files are written to disk, and a new chunk is started. This can be changed by redefining MAX_FILES_PER_CHUNK in common.hh.
 
 ## Compilation
 To compile, create 'build' directory, and run 'make'.
