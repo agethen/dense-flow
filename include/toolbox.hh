@@ -1,18 +1,35 @@
 #ifndef TOOLBOX_HH
 #define TOOLBOX_HH
 
-#include "denseFlow_gpu.hh"
+#include <string>
+#include <vector>
+#include <memory>
+#include <fstream>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
+#include <boost/lexical_cast.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
+#include "common.hh"
 
 namespace toolbox{
+
+	inline std::string int_to_string( int64_t val ){
+	  return boost::lexical_cast<std::string>( val );
+	}
 
 	// Originally included functions
 	void drawOptFlowMap(const cv::Mat& flow, cv::Mat& cflowmap, int step, const cv::Scalar& color);
 	void convertFlowToImage(const cv::Mat &flow_x, const cv::Mat &flow_y, cv::Mat &img_x, cv::Mat &img_y,
 	       double lowerBound, double higherBound, bool finegrained = false );
 
-	#ifdef SERIALIZE_BUFFER
 	// Encodes cv::Mat as jpeg and converts to string (and reverse)
-	std::string encode( cv::Mat & m );
+	std::string encode( const cv::Mat & m );
 	cv::Mat decode( std::string & str, bool is_color = false );
 
 	// Serialize/Deserialize a vector of strings to/from file
@@ -35,7 +52,7 @@ namespace toolbox{
 			Serializer( std::string pre, std::string post ) : Serializer( pre, post, 1000 ){};
 			Serializer( ) : Serializer( "archive", ".ar", 1000 ){};
 
-			inline void push_back( std::string s ){
+			inline void PushBack( std::string s ){
 				data_.push_back( s );
 				counter_++;
 
@@ -59,7 +76,31 @@ namespace toolbox{
 			std::string prefix_ = "";
 			std::string postfix_ = "";
 	};
-	#endif
+
+	class IOManager{
+		public:
+			IOManager( 	const std::string img, const std::string flow_x, const std::string flow_y,
+									const std::vector<int64_t> span, const int64_t max_files_chunk, const bool serialize );
+
+
+			void WriteImg( const cv::Mat & img, const int64_t id );
+			void WriteFlow( const cv::Mat & x, const cv::Mat & y, const int64_t id, const int64_t span_id );
+
+			void sync();
+
+		private:
+			std::string CreateFilename( const int64_t id, const int64_t span_id, const int64_t type );
+
+			bool serialize_;
+			std::string img_;
+			std::string flow_x_;
+			std::string flow_y_;
+
+			Serializer * archive_i_;
+		  std::vector< Serializer * > archive_x_;
+		  std::vector< Serializer * > archive_y_;
+
+	};
 
 } // namespace toolbox
 #endif

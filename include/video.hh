@@ -2,9 +2,17 @@
 #define VIDEO_HH
 
 #include <cstdint>
+
 #include <vector>
+#include <string>
+#include <iostream>
 #include <utility>
-#include <denseFlow_gpu.hh>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
+#include "common.hh"
 
 class Video{
 	public:
