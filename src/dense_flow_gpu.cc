@@ -121,7 +121,7 @@ void ProcessClip( Video & v, toolbox::IOManager & io_manager, const int type, co
 
       ComputeFlow( grey_first, grey_second, type, bound, flow_x, flow_y );
 
-      io_manager.WriteFlow( flow_x, flow_y, span, counter );
+      io_manager.WriteFlow( flow_x, flow_y, counter, i );
     }
 
     clip.erase( clip.begin(), clip.begin()+1 );
