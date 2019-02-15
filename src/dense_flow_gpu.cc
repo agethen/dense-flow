@@ -1,5 +1,5 @@
 #include "dense_flow_gpu.hh"
-
+#include <iostream>
 // Compute optical flow between frames t and t+steppings[*]
 const std::vector< int64_t > flow_span { 1 };
 
@@ -162,8 +162,11 @@ void ComputeFlow( const cv::Mat prev, const cv::Mat cur, const int type, const i
   cv::split( flow, tmp_flow );
 
   cv::Mat imgX, imgY;
-  cv::resize( tmp_flow[0], imgX, cv::Size( DIM_X, DIM_Y ) );
-  cv::resize( tmp_flow[1], imgY, cv::Size( DIM_X, DIM_Y ) );
+  // We previously rescaled Optical Flow here. Not sure why?
+  // cv::resize( tmp_flow[0], imgX, cv::Size( DIM_X, DIM_Y ) );
+  // cv::resize( tmp_flow[1], imgY, cv::Size( DIM_X, DIM_Y ) );
+  imgX = tmp_flow[0];
+  imgY = tmp_flow[1];
 
 	#ifdef TEST_FINEGRAINED
 	toolbox::convertFlowToImage( imgX, imgY, flow_x, flow_y, 0, 0, true );
