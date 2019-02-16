@@ -175,7 +175,8 @@ namespace toolbox {
 				archive_i_->PushBack( toolbox::encode( img ) );
 		} else {
 			if( img_.size() )
-				cv::imwrite( CreateFilename( id, -1, 0 ) , img );
+				cv::imwrite( CreateFilename( id, -1, 0 ), img );
+      
 		}
 
 	}
@@ -195,6 +196,7 @@ namespace toolbox {
 
 			if( flow_y_.size() )
 				cv::imwrite( CreateFilename( id, span_id, 2 ), y );
+
 		}
 
 	}
@@ -228,15 +230,15 @@ namespace toolbox {
 				name = img_ + int_to_string( id ) + ".jpg";
 				break;
 			case 1:
-				name = flow_x_ = int_to_string( id ) + span + ".jpg";
+				name = flow_x_ + int_to_string( id ) + span + ".jpg";
 				break;
 			case 2:
-				name = flow_y_ = int_to_string( id ) + span + ".jpg";
+				name = flow_y_ + int_to_string( id ) + span + ".jpg";
 				break;
 			default:
 				name = "";
 		}
-
+    
 		return name;
 	}
 
