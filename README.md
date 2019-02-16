@@ -9,7 +9,7 @@ git clone https://github.com/opencv/opencv.git
 cd opencv
 mkdir build
 cd build
-cmake -D WITH_CUDA=ON -D -D WITH_FFMPEG=ON -D CMAKE_INSTALL_PREFIX=/some/path -D CUDA_ARCH_BIN=61 ..
+cmake -D WITH_CUDA=ON -D WITH_FFMPEG=ON -D CMAKE_INSTALL_PREFIX=/some/path/opencv -D CUDA_ARCH_BIN=61 ..
 make -j3
 make install
 ```
@@ -18,7 +18,13 @@ With `CUDA_ARCH_BIN` you can specify the CUDA compute capability of your card, w
 To make sure everything worked, check the output of the `cmake` line and look for CUDA and FFMPEG.
 
 ## Compilation of dense-flow
-Let's assume opencv is installed in `/some/path`. You now need to tell dense-flow's Makefile that path. To do this, edit `Makefile.config` and modify the paths in the second and third line.
+Let's assume OpenCV is installed in `/some/path/opencv`. You now need to tell dense-flow's Makefile that path. To do this, edit `Makefile.config` and modify the paths in the second and third line.
+Example:
+```
+INCLUDE=-I/some/path/opencv/include -Iinclude/
+LIB=-L/some/path/opencv/lib
+```
+
 Once this is done, simply run:
 ```
 mkdir build
@@ -26,7 +32,10 @@ make
 ```
 
 ## Running dense-flow
-For convenience, we included a little script `build-flow.sh` that can batch process videos. You first need to edit line 19 and change `LD_LIBRARY_PATH` to point to your OpenCV installation. Do NOT forget this step, as the program might otherwise try to load a preinstalled version of OpenCV (which do not have CUDA support).
+For convenience, we included a little script `build-flow.sh` that can batch process videos. You first need to edit line 19 and change `LD_LIBRARY_PATH` to point to your OpenCV installation. Do NOT forget this step, as the program might otherwise try to load a preinstalled version of OpenCV (which do not have CUDA support). Again assuming OpenCV is installed at `/some/path/opencv`, you would write:
+```
+LD_LIBRARY_PATH=/some/path/opencv/lib build/denseFlow_gpu .........
+```
 
 Now, we need to provide a list of the video files we would like to process. Under Linux, you can do the following:
 ```
